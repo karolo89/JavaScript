@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Word Guess Solver</title>
+    </head>
+    <style>
+        .trail {
+            position: absolute;
+            height: 6px;
+            width: 6px;
+            border-radius: 3px;
+            background: purple;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            padding: 20px;
+            background: linear-gradient(to right, #00AAFF, #00FF6C);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: black;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: black;
+        }
+
+        input[type="file"], input[type="text"], button {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            color: #333;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: red;
+        } */
+
+    </style>
+    <body>
+        <h1>Word Guess Solver</h1>
+        <label for="wordListFile">Upload your word list (.txt format):</label>
+        <input type="file" id="wordListFile" accept=".txt"/>
+        <br>
+        <label for="pattern">Enter your regular expression pattern:</label>
+        <input type="text" id="pattern" placeholder="Enter a regular expression">
+        <button id="solveBtn">Solve</button>
+        <div id="result"></div>
+        <script>
+
+            // Function to create the trail animation from Eloquent JavaScript Ch 15
+            function createTrailAnimation() {
+                let dots = [];
+                for (let i = 0; i < 12; i++) {
+                    let node = document.createElement("div");
+                    node.className = "trail";
+                    document.body.appendChild(node);
+                    dots.push(node);
+                }
+                let currentDot = 0;
+
+                window.addEventListener("mousemove", event=>{
+                    let dot = dots[currentDot];
+                    dot.style.left = (event.pageX - 3) + "px";
+                    dot.style.top = (event.pageY - 3) + "px";
+                    currentDot = (currentDot + 1) % dots.length;
+                }
+                );
+            }
+
+            // Call the createTrailAnimation function to start the animation
+
+            createTrailAnimation();
+
+            // Word Guess Solver
+
+            document.getElementById("solveBtn").addEventListener("click", solveWordGuess);
+
+            function solveWordGuess() {
+                let wordListFile = document.getElementById("wordListFile");
+                let patternInput = document.getElementById("pattern");
+                let resultDiv = document.getElementById("result");
+
+                let file = wordListFile.files[0];
+                if (!file) {
+                    resultDiv.innerHTML = "<p>Please upload a word list file.</p>";
+                    return;
+                }
+
+                let reader = new FileReader();
+
+                reader.onload = function(event) {
+                    let wordListContent = event.target.result;
+                    let wordList = wordListContent.trim().toLowerCase().split('\n').map(word=>word.trim());
+
+                    let pattern = patternInput.value.trim();
+                    let regex = new RegExp(pattern,'i');
+
+                    let matchingWords = wordList.filter(word=>regex.test(word));
+
+                    if (matchingWords.length > 0) {
+                        let resultHTML = "<p>Matching words:</p><ul>" + matchingWords.map(word=>"<li>" + word + "</li>").join("") + "</ul>";
+                        resultDiv.innerHTML = resultHTML;
+                    } else {
+                        resultDiv.innerHTML = "<p>Sorry, we couldn't find any matching words.</p>";
+                    }
+                }
+                ;
+                reader.readAsText(file);
+            }
+        </script>
+    </body>
+</html>
